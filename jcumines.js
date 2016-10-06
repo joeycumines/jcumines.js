@@ -186,3 +186,23 @@ jcumines.stringifyExcludeSeen = function(obj) {
         return val;
     });
 };
+
+/**
+This object exposes the internal fulfill and resolve methods of a promise.
+The promise itself can be accessed using the property promise.
+
+if optionalAfter is provided, then the promise property will have optionalAfter
+resolved after.
+*/
+jcumines.BlockingPromise = function(optionalAfter){
+    this.promise = (new Promise(function(resolve, reject){
+        this.resolve = resolve;
+        this.reject = reject;
+    }.bind(this))).then(function(r){
+        //if optionalAfter is defined and not null
+        if (optionalAfter != null){
+            return Promise.resolve(optionalAfter);
+        }
+        return r;
+    });
+};
