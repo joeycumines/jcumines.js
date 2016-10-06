@@ -4,7 +4,7 @@
   "description": "A personal boilerplate library in JS by Joseph Cumines.",
   "main": "jcumines.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "./node_modules/.bin/mocha"
   },
   "repository": {
     "type": "git",
@@ -19,5 +19,9 @@
   "bugs": {
     "url": "https://github.com/joeycumines/jcumines.js/issues"
   },
-  "homepage": "https://github.com/joeycumines/jcumines.js#readme"
+  "homepage": "https://github.com/joeycumines/jcumines.js#readme",
+  "devDependencies": {
+    "es6-promise": "^4.0.5",
+    "mocha": "^3.1.0"
+  }
 }

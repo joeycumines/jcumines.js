@@ -9,55 +9,97 @@ Requires es6 compliant Promise implementation.
 
 var jcumines = module.exports = {};
 
+/**
+Avoid accessing this directly.
+*/
 jcumines._workers = {};
 
 /**
-One worker at a time tool. Returns a promise
-containing input's value.
-
-If no input is passed, then it will return the queued workers length.
- */
-jcumines.worker = function(key, input) {
-    //Initialize the worker if necessary
+Get all the currently running workers, for a given key.
+*/
+jcumines.workers = function(key) {
     if (jcumines._workers[key] == null) {
         jcumines._workers[key] = [];
     }
+    return jcumines._workers[key];
+};
 
-    if (input == null)
-        return jcumines._workers[key].length;
+/**
+One worker at a time tool. Returns a promise
+containing callback's value.
+
+If callback is anything other then a function, then it will be resolved
+as a promise, so you can pass an existing promise to the worker queue,
+and it will block future callbacks until it is resolved.
+
+Notes for usage: callback is called with the time between when we started
+waiting and when we stopped waiting as the first and only argument.
+
+By the time that the result is returned it is guarenteed that the worker
+representing the callback has been cleared.
+ */
+jcumines.worker = function(key, callback) {
+    //Initialize the worker array if necessary
+    var workers = jcumines.workers(key);
+
+    //the callback we use
+    var cb = callback;
+    //If it isnt a function then we make it a function that resolves the value of it.
+    if (typeof callback !== 'function') {
+        cb = function() {
+            return callback;
+        };
+    }
 
     var at = Promise.resolve(true);
-    if (jcumines._workers[key].length > 0)
-        at = jcumines._workers[key][jcumines._workers[key].length - 1];
-
+    //Get the back of the queue if we can
+    if (workers.length > 0) {
+        at = workers[workers.length - 1];
+    }
+    //Note when we started waiting
+    var startedWaiting = Date.now();
     //Queue the operation behind the worker
     var result = at.then(function(r) {
-        return Promise.resolve(input);
+        //Get the value from callback, passing down the time we waited.
+        return cb(Date.now() - startedWaiting);
     });
 
     //Create a catching and self removing worker from our result.
     var worker = result['catch'](function(err) {
-        //We just return the error (fulfills) because we dont want to kill it
+        //We just return the error (fulfills) because we dont want to kill it if it failed (still needs to be removed)
         return err;
     }).then(function(r) {
-        //remove the worker from the array if it exists (it should
+        //remove the worker from the array if it exists (it should, will error if not)
         var removed = false;
-        for (var x = 0; x < jcumines._workers[key].length; x++) {
-            if (jcumines._workers[key][x] == worker) {
-                jcumines._workers[key].splice(0, 1);
+        for (var x = 0; x < workers.length; x++) {
+            //Nifty scoping here
+            if (workers[x] == worker) {
+                workers.splice(x, 1);
                 x--;
                 removed = true;
+                break;
             }
         }
         if (!removed)
             throw new Error('We couldnt self remove a promise in worker queue ' + key);
+        return true;
     });
 
-    //add the worker to the end
-    jcumines._workers[key].push(worker);
+    //add the worker to the end of the worker queue
+    workers.push(worker);
 
-    //Return the operation as well
-    return result;
+    //Resolve / Reject the same as the result, but ensure that the worker is finished, and has been cleared, beforehand.
+    return result.then(function(r) {
+        return worker.then(function() {
+            //Resolve the value from result
+            return r;
+        });
+    })['catch'](function(err) {
+        return worker.then(function() {
+            //Reject with the error from result
+            return Promise.reject(err);
+        });
+    });
 };
 
 /**
@@ -135,7 +177,7 @@ jcumines.promiseAll = function(input, cb) {
         });
     } catch (e) {
         console.dir(e);
-        return new Promise.reject(e);
+        return Promise.reject(e);
     }
 };
 
@@ -190,19 +232,10 @@ jcumines.stringifyExcludeSeen = function(obj) {
 /**
 This object exposes the internal fulfill and resolve methods of a promise.
 The promise itself can be accessed using the property promise.
-
-if optionalAfter is provided, then the promise property will have optionalAfter
-resolved after.
 */
-jcumines.BlockingPromise = function(optionalAfter){
-    this.promise = (new Promise(function(resolve, reject){
+jcumines.BlockingPromise = function() {
+    this.promise = new Promise(function(resolve, reject) {
         this.resolve = resolve;
         this.reject = reject;
-    }.bind(this))).then(function(r){
-        //if optionalAfter is defined and not null
-        if (optionalAfter != null){
-            return Promise.resolve(optionalAfter);
-        }
-        return r;
-    });
+    }.bind(this));
 };
