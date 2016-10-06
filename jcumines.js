@@ -14,7 +14,7 @@ jcumines._workers = {};
 One worker at a time tool. Returns a promise
 containing input's value.
 
-If no input is passed, then it will return the queued workers.
+If no input is passed, then it will return the queued workers length.
  */
 jcumines.worker = function (key, input) {
 	//Initialize the worker if necessary
@@ -149,4 +149,41 @@ Returns promise.
 jcumines.forEachLine = function (s, cb) {
 	var split = s.match(/[^\r\n]+/g);
 	return jcumines.promiseAll(split, cb);
+};
+
+/**
+Execute a method on a object.
+
+context is the object, functionName is a string deliniated with .,
+and args is an array.
+
+Throws an error if it is unable to execute.
+ */
+jcumines.executeMethodOnObject = function (functionName, context, args) {
+	var namespaces = functionName.split(".");
+	var func = namespaces.pop();
+	for (var i = 0; i < namespaces.length; i++) {
+		context = context[namespaces[i]];
+	}
+	if (context[func] == null || context[func].apply == null)
+		throw new Error('Unable to execute ' + functionName + ' on the object provided.');
+	return context[func].apply(context, args);
+};
+
+/**
+Stringify an object, excluding seen objects.
+
+Basic way of serializing circular objects, such as results from mongodb.
+ */
+jcumines.stringifyExcludeSeen = function (obj) {
+	var seen = [];
+	return JSON.stringify(obj, function (key, val) {
+		if (jcumines.isObject(val)) {
+			if (seen.indexOf(val) >= 0) {
+				return;
+			}
+			seen.push(val);
+		}
+		return val;
+	});
 };
