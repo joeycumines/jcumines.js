@@ -19,8 +19,5 @@
   "bugs": {
     "url": "https://github.com/joeycumines/jcumines.js/issues"
   },
-  "homepage": "https://github.com/joeycumines/jcumines.js#readme",
-  "dependencies": {
-    "es6-promise": "^4.0.5"
-  }
+  "homepage": "https://github.com/joeycumines/jcumines.js#readme"
 }

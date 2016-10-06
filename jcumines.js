@@ -2,9 +2,9 @@
 Boilerplate code by Joseph Cumines.
 
 This library can be used in both node and the browser, using RequireJS.
- */
 
-require('es6-promise').polyfill();
+Requires es6 compliant Promise implementation.
+ */
 
 var jcumines = module.exports = {};
 
