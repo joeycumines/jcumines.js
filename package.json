@@ -1,0 +1,26 @@
+{
+  "name": "jcumines",
+  "version": "0.0.1",
+  "description": "A personal boilerplate library in JS by Joseph Cumines.",
+  "main": "jcumines.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/joeycumines/jcumines.js.git"
+  },
+  "keywords": [
+    "boilerplate",
+    "javascript"
+  ],
+  "author": "Joseph Cumines <joeycumines@gmail.com> (http://joeycumines.me)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/joeycumines/jcumines.js/issues"
+  },
+  "homepage": "https://github.com/joeycumines/jcumines.js#readme",
+  "dependencies": {
+    "es6-promise": "^4.0.5"
+  }
+}
