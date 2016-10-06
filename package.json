@@ -1,6 +1,6 @@
 {
   "name": "jcumines",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "A personal boilerplate library in JS by Joseph Cumines.",
   "main": "jcumines.js",
   "scripts": {
