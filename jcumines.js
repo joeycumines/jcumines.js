@@ -5,6 +5,7 @@ This library can be used in both node and the browser, using RequireJS.
 
 Requires es6 compliant Promise implementation.
  */
+/* jshint eqnull:true */
 
 var jcumines = module.exports = {};
 
@@ -63,21 +64,19 @@ jcumines.worker = function (key, input) {
 Deep copy of arrays and objects implementation. Only copies directly owned properties.
  */
 jcumines.deepCopy = function (obj) {
+    var result = obj;
 	if (jcumines.isObject(obj)) {
-		var result = {};
+		result = {};
 		for (var k in obj) {
 			if (obj.hasOwnProperty(k))
 				result[k] = jcumines.deepCopy(obj[k]);
 		}
-		return result;
 	} else if (jcumines.isArray(obj)) {
-		var result = [];
+		result = [];
 		for (var x = 0; x < obj.length; x++)
 			result.push(jcumines.deepCopy(obj[x]));
-		return result;
-	} else {
-		return obj;
 	}
+    return result;
 };
 
 /**
@@ -124,7 +123,7 @@ jcumines.promiseAll = function (input, cb) {
 	try {
 		var copyInput = input.concat([]);
 		//done
-		if (copyInput.length == 0)
+		if (copyInput.length === 0)
 			return Promise.resolve(true);
 		var working = copyInput[0];
 		copyInput.shift();
