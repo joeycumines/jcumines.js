@@ -151,6 +151,17 @@ describe('jcumines', function() {
                 assert.equal(jcumines.workers('key1').length, 0);
             });
         });
+        it('should clear the _workers reference on complete', function() {
+            return jcumines.worker('key3').then(function() {
+                assert(!jcumines._workers.hasOwnProperty('key3'));
+            });
+        });
+        it('shouldnt clear the array if accessed via jcumines.workers', function() {
+            return jcumines.worker('key3').then(function() {
+                jcumines.workers('key3');
+                assert(jcumines._workers.hasOwnProperty('key3'));
+            });
+        });
     });
     describe('BlockingPromise', function() {
         it('should resolve correctly', function() {

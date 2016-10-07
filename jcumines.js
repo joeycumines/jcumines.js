@@ -82,6 +82,11 @@ jcumines.worker = function(key, callback) {
         }
         if (!removed)
             throw new Error('We couldnt self remove a promise in worker queue ' + key);
+
+        //Before we go, clear the worker queue reference if its empty
+        if (jcumines._workers[key] != null && jcumines._workers[key].length === 0)
+            delete jcumines._workers[key];
+
         return true;
     });
 
