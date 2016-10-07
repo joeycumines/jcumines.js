@@ -108,7 +108,7 @@ jcumines.worker = function(key, callback) {
 };
 
 /**
-Deep copy of arrays and objects implementation. Only copies directly owned properties.
+Deep copy of arrays, objects, and strings (chrome bug). Only copies directly owned properties.
  */
 jcumines.deepCopy = function(obj) {
     var result = obj;
@@ -122,6 +122,9 @@ jcumines.deepCopy = function(obj) {
         result = [];
         for (var x = 0; x < obj.length; x++)
             result.push(jcumines.deepCopy(obj[x]));
+    } else if (jcumines.isString(obj)) {
+        //chrome had a bug with this a while back.
+        result = (' ' + obj).slice(1);
     }
     return result;
 };
@@ -159,6 +162,13 @@ Returns true if the variable is an array.
  */
 jcumines.isArray = function(input) {
     return input != null && Array.isArray(input);
+};
+
+/**
+Returns true if the variable is a string. Doesnt work object wrapped strings, deliberate.
+*/
+jcumines.isString = function(input) {
+    return typeof input === 'string';
 };
 
 /**
